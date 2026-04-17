@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' omni-file: data:; connect-src 'self';">
+  <title>Omni Launcher</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="bg-shell"></div>
+  <header class="titlebar">
+    <div class="title-cluster">
+      <div class="product-mark">OL</div>
+      <div>
+        <p class="eyebrow">Omni Launcher</p>
+        <h1 class="title-text">Local device and automation cockpit</h1>
+      </div>
+    </div>
+    <div class="title-actions">
+      <button class="window-btn" id="btn-minimize" aria-label="Minimize">_</button>
+      <button class="window-btn" id="btn-maximize" aria-label="Maximize">[]</button>
+      <button class="window-btn close" id="btn-close" aria-label="Close">X</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar-nav">
+      <button class="nav-item active" id="nav-dashboard">Dashboard</button>
+      <button class="nav-item" id="nav-explorer">Files</button>
+      <button class="nav-item" id="nav-automation">Automation</button>
+      <button class="nav-item" id="nav-settings">Settings</button>
+    </aside>
+
+    <main class="shell-main">
+      <section class="view-panel active" id="view-dashboard">
+        <div class="hero-card">
+          <div>
+            <p class="eyebrow">Host status</p>
+            <h2 class="hero-title" id="hero-title">Ready for desktop automation work</h2>
+            <p class="hero-copy">
+              Run shell scripts, browse files, and keep Android tooling paths consistent from one control surface.
+            </p>
+          </div>
+          <div class="hero-clock">
+            <div class="clock-time" id="big-clock">00:00</div>
+            <div class="clock-date" id="date-display">APR 17 2026</div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <p class="stat-label">CPU load</p>
+            <p class="stat-value" id="cpu-load">0.0%</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Memory use</p>
+            <p class="stat-value" id="mem-load">0.0%</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">Host uptime</p>
+            <p class="stat-value" id="uptime-value">0h 0m</p>
+          </article>
+          <article class="stat-card">
+            <p class="stat-label">ADB state</p>
+            <p class="stat-value" id="adb-status">Checking...</p>
+          </article>
+        </div>
+
+        <div class="quick-grid">
+          <button class="action-card" id="card-explorer">
+            <span class="action-kicker">Browse</span>
+            <strong>Open file explorer</strong>
+            <span>Jump into your home folder and open anything with the default desktop app.</span>
+          </button>
+          <button class="action-card" id="card-automation">
+            <span class="action-kicker">Run</span>
+            <strong>Queue a script</strong>
+            <span>Pick a shell script or use the legacy Automation folder list and launch it against a target device ID.</span>
+          </button>
+          <div class="focus-card">
+            <span class="action-kicker">Focus</span>
+            <strong>Trimmed to the useful core</strong>
+            <span>This build stays centered on file operations, automation, and settings instead of exposing unfinished subsystems.</span>
+          </div>
+        </div>
+        <div class="two-col dashboard-grid">
+          <div class="panel-card">
+            <div class="panel-head">
+              <h3>Favorite scripts</h3>
+              <span class="panel-meta">Pinned from automation</span>
+            </div>
+            <div class="activity-list" id="dashboard-favorites"></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-head">
+              <h3>Recent runs</h3>
+              <span class="panel-meta">Fast restart</span>
+            </div>
+            <div class="activity-list" id="dashboard-recents"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view-panel" id="view-explorer">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">File browser</p>
+            <h2>OmniBrowse</h2>
+          </div>
+          <div class="toolbar-inline">
+            <input class="compact-input" id="explorer-search" type="text" placeholder="Filter current folder">
+            <button class="ghost-btn" id="btn-explorer-up">Up</button>
+            <button class="ghost-btn" id="btn-explorer-refresh">Refresh</button>
+          </div>
+        </div>
+        <div class="breadcrumbs-bar" id="explorer-breadcrumbs"></div>
+        <div class="path-bar" id="explorer-path">/</div>
+        <div class="explorer-layout">
+          <div class="panel-card">
+            <div class="panel-head">
+              <h3>Mounts</h3>
+            </div>
+            <div class="mount-list" id="mount-list"></div>
+          </div>
+          <div class="panel-card grow">
+            <div class="panel-head">
+              <h3>Directory contents</h3>
+              <span class="panel-meta" id="explorer-meta">0 items</span>
+            </div>
+            <div class="explorer-body" id="explorer-content"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view-panel" id="view-automation">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Script execution</p>
+            <h2>Automation queue</h2>
+          </div>
+        </div>
+        <div class="two-col drop-zone" id="automation-drop-zone">
+          <div class="panel-card">
+            <div class="panel-head">
+              <h3>Launch a task</h3>
+            </div>
+            <label class="form-field">
+              <span>Script path</span>
+              <div class="input-inline">
+                <input id="automation-script-path" type="text" placeholder="/path/to/script.sh">
+                <button class="ghost-btn" id="btn-pick-script">Choose</button>
+              </div>
+            </label>
+            <label class="form-field">
+              <span>Device ID</span>
+              <input id="automation-device-id" type="text" placeholder="Optional adb serial">
+            </label>
+            <div class="button-row">
+              <button class="primary-btn" id="btn-run-automation">Run script</button>
+              <button class="ghost-btn" id="btn-refresh-scripts">Refresh list</button>
+            </div>
+            <div class="drop-hint" id="automation-drop-hint">Drop a `.sh`, `.adb`, or `.bash` file anywhere in this panel to load it.</div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-head">
+              <h3>Available scripts</h3>
+              <span class="panel-meta">From ~/Automation</span>
+            </div>
+            <div class="script-list" id="automation-script-list"></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="panel-card">
+            <div class="panel-head">
+              <h3>Favorites</h3>
+              <span class="panel-meta">Pinned scripts</span>
+            </div>
+            <div class="activity-list" id="automation-favorites"></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-head">
+              <h3>Recent runs</h3>
+              <span class="panel-meta">Last launches</span>
+            </div>
+            <div class="activity-list" id="automation-recents"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view-panel" id="view-settings">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Tooling configuration</p>
+            <h2>Core settings</h2>
+          </div>
+        </div>
+        <div class="settings-grid" id="settings-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="terminal-dock" id="term-dock">
+    <div class="terminal-header" id="term-header">
+      <div class="terminal-summary">
+        <span class="term-title">Status console</span>
+        <span class="term-badge" id="term-badge">Idle</span>
+      </div>
+      <div class="terminal-controls">
+        <button id="btn-term-toggle" class="ghost-btn small">Expand</button>
+        <button id="btn-term-clear" class="ghost-btn small">Clear</button>
+      </div>
+    </div>
+    <div class="terminal-body" id="term-body"></div>
+  </footer>
+
+  <div class="toast-container" id="toast-container"></div>
+  <div class="context-menu hidden" id="explorer-context-menu"></div>
+  <div class="modal-backdrop hidden" id="file-op-modal">
+    <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="file-op-title">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow" id="file-op-kicker">File operation</p>
+          <h3 id="file-op-title">Rename item</h3>
+        </div>
+        <button class="ghost-btn small" id="btn-file-op-cancel-top">Close</button>
+      </div>
+      <p class="modal-copy" id="file-op-copy"></p>
+      <label class="form-field">
+        <span id="file-op-label">Value</span>
+        <input id="file-op-input" type="text" autocomplete="off">
+      </label>
+      <div class="button-row modal-actions">
+        <button class="ghost-btn" id="btn-file-op-cancel">Cancel</button>
+        <button class="primary-btn" id="btn-file-op-submit">Save</button>
+      </div>
+    </div>
+  </div>
+  <script src="./renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "omni-launcher",
+  "version": "1.0.0",
+  "description": "Desktop control surface for local files, Android tooling, and shell automation.",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^35.1.4"
+  }
+}
