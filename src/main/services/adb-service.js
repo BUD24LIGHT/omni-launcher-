@@ -17,12 +17,14 @@ class AdbService {
     this.emit("sys:adb-update", {
       count: 0,
       status: "Starting ADB...",
+      devices: [],
     });
 
     this.readyFallback = setTimeout(() => {
       this.emit("sys:adb-update", {
         count: 0,
         status: "Ready",
+        devices: [],
       });
     }, 1500);
 
@@ -33,10 +35,15 @@ class AdbService {
           this.readyFallback = null;
         }
         const output = data.toString().trim();
-        const devices = output.split("\n").filter(l => l.includes("\tdevice")).length;
+        const deviceLines = output
+          .split("\n")
+          .filter((line) => line.includes("\tdevice"))
+          .map((line) => line.split("\t")[0].trim())
+          .filter(Boolean);
         this.emit("sys:adb-update", {
-          count: devices,
-          status: devices > 0 ? `${devices} connected` : "Ready"
+          count: deviceLines.length,
+          status: deviceLines.length > 0 ? `${deviceLines.length} connected` : "Ready",
+          devices: deviceLines,
         });
       },
       (err) => {

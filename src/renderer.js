@@ -21,6 +21,7 @@ const state = {
     mem: "0.0%",
     uptime: "0h 0m",
     host: "",
+    devices: [],
   },
   modal: {
     isOpen: false,
@@ -252,6 +253,49 @@ function renderDashboardAutomationPanels() {
       void runAutomation(button.dataset.dashboardRecentRun, button.dataset.device || ""),
     );
   });
+}
+
+function renderDeviceCard() {
+  const countEl = document.getElementById("device-count");
+  const summaryEl = document.getElementById("device-summary");
+  const listEl = document.getElementById("device-list");
+  if (!countEl || !summaryEl || !listEl) {
+    return;
+  }
+
+  const devices = Array.isArray(state.system.devices) ? state.system.devices : [];
+  countEl.textContent = `${devices.length} ${devices.length === 1 ? "online" : "online"}`;
+
+  if (state.system.adb === "ADB unavailable") {
+    summaryEl.textContent = "ADB is unavailable. Check the configured path or install adb.";
+    listEl.innerHTML = `<div class="empty-state">No device stream available.</div>`;
+    return;
+  }
+
+  if (devices.length === 0) {
+    summaryEl.textContent =
+      state.system.adb === "Starting ADB..."
+        ? "Waiting for adb to settle."
+        : "ADB is ready. Connect a device to target automation runs directly.";
+    listEl.innerHTML = `<div class="empty-state">No devices connected.</div>`;
+    return;
+  }
+
+  summaryEl.textContent =
+    devices.length === 1
+      ? "One device is available for direct automation targeting."
+      : `${devices.length} devices are available for direct automation targeting.`;
+
+  listEl.innerHTML = devices
+    .map(
+      (deviceId) => `
+        <div class="device-pill">
+          <strong>${escapeHtml(deviceId)}</strong>
+          <span>adb target ready</span>
+        </div>
+      `,
+    )
+    .join("");
 }
 
 function hideExplorerContextMenu() {
@@ -994,18 +1038,23 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   window.omniAPI.onAdbUpdate((data) => {
     state.system.adb = data.status;
+    state.system.devices = Array.isArray(data.devices) ? data.devices : [];
     document.getElementById("adb-status").textContent = data.status;
     if (data.status.toLowerCase().includes("connected")) {
       setTerminalBadge("Device connected", "success");
     } else {
       setTerminalBadge("ADB ready", "idle");
     }
+    renderDeviceCard();
     logger.log(`ADB: ${data.status}`, "sys");
   });
 
   window.omniAPI.onAdbError((message) => {
     document.getElementById("adb-status").textContent = "ADB unavailable";
+    state.system.adb = "ADB unavailable";
+    state.system.devices = [];
     setTerminalBadge("ADB unavailable", "error");
+    renderDeviceCard();
     logger.log(`ADB error: ${message}`, "error");
   });
 
@@ -1042,6 +1091,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   await refreshAutomationScripts();
   renderFavoritesAndRecents();
   renderDashboardAutomationPanels();
+  renderDeviceCard();
   switchView("dashboard");
 });
 

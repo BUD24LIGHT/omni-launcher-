@@ -251,6 +251,52 @@ input {
   align-items: start;
 }
 
+.device-card {
+  padding: 18px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(125, 245, 198, 0.08), rgba(9, 27, 32, 0.92));
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow);
+}
+
+.device-count {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 245, 198, 0.24);
+  color: var(--accent);
+  font-size: 0.82rem;
+}
+
+.device-summary {
+  margin: 8px 0 16px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.device-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.device-pill {
+  min-width: 220px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+}
+
+.device-pill strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.device-pill span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
 .stat-card,
 .action-card,
 .panel-card,
